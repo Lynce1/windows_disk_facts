@@ -4,6 +4,9 @@ Facter.add('disks') do
   require_relative '../puppet_x/disk_facts/underscore.rb'
   require 'json'
   setcode do
+    kernelmajversion = Facter.value('kernelmajversion')
+    next if kernelmajversion == '6.0' # Get-disk is not available on Windows Server 2008
+    next if kernelmajversion == '6.1' # Get-disk is not available on Windows Server 2008 R2
 
     disks_hashes = JSON.parse(Facter::Core::Execution.exec("powershell.exe -Command \"Get-Disk | Select-Object * -ExcludeProperty CimClass,CimInstanceProperties,CimSystemProperties | ConvertTo-Json -Depth 100 -Compress\"")) rescue []
     disks_hashes_renamed = []
